@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using AppInsegura.Datos;
 using AppInsegura.Modelos;
 
@@ -38,8 +37,7 @@ namespace AppInsegura.Servicios
                 return null;
             }
 
-            string hashIntento = CalcularHash(contrasena);
-            if (usuario.ContrasenaHash != hashIntento)
+            if (!VerificarContrasena(contrasena, usuario.ContrasenaHash))
             {
                 return null;
             }
@@ -53,11 +51,32 @@ namespace AppInsegura.Servicios
             return usuario;
         }
 
+        private const int TamanoSal = 16;
+        private const int TamanoHash = 32;
+        private const int Iteraciones = 100_000;
+
+        // PBKDF2 con SHA-256 y sal aleatoria por usuario. Se guarda como "sal:hash".
         private string CalcularHash(string contrasena)
         {
-            using MD5 md5 = MD5.Create();
-            byte[] bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(contrasena));
-            return Convert.ToHexString(bytes);
+            byte[] sal = RandomNumberGenerator.GetBytes(TamanoSal);
+            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(contrasena, sal, Iteraciones, HashAlgorithmName.SHA256, TamanoHash);
+            return $"{Convert.ToHexString(sal)}:{Convert.ToHexString(hash)}";
+        }
+
+        private bool VerificarContrasena(string contrasena, string hashGuardado)
+        {
+            string[] partes = hashGuardado.Split(':');
+            if (partes.Length != 2)
+            {
+                return false;
+            }
+
+            byte[] sal = Convert.FromHexString(partes[0]);
+            byte[] hashEsperado = Convert.FromHexString(partes[1]);
+            byte[] hashIntento = Rfc2898DeriveBytes.Pbkdf2(contrasena, sal, Iteraciones, HashAlgorithmName.SHA256, hashEsperado.Length);
+
+            // Comparación en tiempo constante para no filtrar información por tiempos de respuesta.
+            return CryptographicOperations.FixedTimeEquals(hashIntento, hashEsperado);
         }
 
         private string GenerarTokenSesion()
