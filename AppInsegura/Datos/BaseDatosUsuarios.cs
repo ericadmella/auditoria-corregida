@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using AppInsegura.Modelos;
 
 namespace AppInsegura.Datos
@@ -29,29 +28,19 @@ namespace AppInsegura.Datos
 
         public Usuario? BuscarPorNombre(string nombreBuscado)
         {
-            string consulta = $"SELECT * FROM usuarios WHERE nombre = '{nombreBuscado}'";
-            return EjecutarConsultaSimulada(consulta);
+            // Consulta parametrizada: el valor que escribe el usuario viaja separado
+            // del SQL y nunca se interpreta como parte de la consulta.
+            const string consulta = "SELECT * FROM usuarios WHERE nombre = @nombre";
+            return EjecutarConsultaParametrizada(consulta, nombreBuscado);
         }
 
-        // Simulación simplificada de un motor de consultas, únicamente para
-        // que el ejercicio se pueda ejecutar sin una base de datos real.
-        // Interpreta la cadena "consulta" igual que lo haría un motor SQL básico.
-        private Usuario? EjecutarConsultaSimulada(string consulta)
+        // Simulación simplificada de un motor de consultas con parámetros, únicamente
+        // para que el ejercicio se pueda ejecutar sin una base de datos real.
+        // El parámetro se compara como dato literal, igual que haría un motor SQL
+        // con "@nombre" enlazado mediante command.Parameters.
+        private Usuario? EjecutarConsultaParametrizada(string consulta, string nombre)
         {
             Console.WriteLine($"[DB] {consulta}");
-
-            if (consulta.Contains("' OR '1'='1") || consulta.Contains("' OR 1=1") || consulta.Contains("'='"))
-            {
-                return usuarios.FirstOrDefault();
-            }
-
-            Match coincidencia = Regex.Match(consulta, "nombre = '([^']*)'");
-            if (!coincidencia.Success)
-            {
-                return null;
-            }
-
-            string nombre = coincidencia.Groups[1].Value;
             return usuarios.FirstOrDefault(u => u.Nombre == nombre);
         }
     }
