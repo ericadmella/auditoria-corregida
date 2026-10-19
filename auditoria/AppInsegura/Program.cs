@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using AppInsegura.Datos;
 using AppInsegura.Modelos;
 using AppInsegura.Servicios;
@@ -55,10 +56,12 @@ namespace AppInsegura
                             break;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine("Ha ocurrido un error inesperado:");
-                    Console.WriteLine(ex.ToString());
+                    // FIX #10: antes se imprimía ex.ToString() (stack trace con clases,
+                    // métodos y rutas internas). Ahora el usuario solo ve un mensaje genérico;
+                    // el detalle debería ir a un log interno que solo vean los desarrolladores.
+                    Console.WriteLine("Ha ocurrido un error inesperado.");
                 }
 
                 Console.WriteLine();
@@ -96,6 +99,26 @@ namespace AppInsegura
             string nombre = Console.ReadLine() ?? "";
             Console.Write("Contraseña: ");
             string contrasena = Console.ReadLine() ?? "";
+
+            // FIX #11: validación de entrada (nunca confiar en lo que escribe el usuario).
+            // Nombre: solo letras, números y _, entre 3 y 20 caracteres.
+            if (!Regex.IsMatch(nombre, "^[a-zA-Z0-9_]{3,20}$"))
+            {
+                Console.WriteLine("Nombre no válido (3-20: letras, números o _).");
+                return;
+            }
+            // Contraseña: mínimo 8 caracteres.
+            if (contrasena.Length < 8)
+            {
+                Console.WriteLine("La contraseña debe tener al menos 8 caracteres.");
+                return;
+            }
+            // No se permiten nombres repetidos (evita suplantar a otro usuario, p. ej. "admin").
+            if (baseDatos.BuscarExacto(nombre) != null)
+            {
+                Console.WriteLine("Ese nombre de usuario ya existe.");
+                return;
+            }
 
             Usuario nuevo = auth.Registrar(nombre, contrasena);
             Console.WriteLine($"Usuario '{nuevo.Nombre}' registrado con rol '{nuevo.Rol}'.");
@@ -140,11 +163,20 @@ namespace AppInsegura
 
             Console.WriteLine($"Nombre: {usuarioActual.Nombre}");
             Console.WriteLine($"Rol: {usuarioActual.Rol}");
-            Console.WriteLine($"Token de sesión: {usuarioActual.TokenSesion}");
+            // FIX #7: antes se mostraba el token de sesión por pantalla.
+            // Quien lo vea puede suplantar al usuario, así que ya no se muestra.
         }
 
         private static void PanelAdministracion()
         {
+            // FIX #6: antes solo se ocultaba la opción 5 en el menú, pero cualquier
+            // jugador podía escribir "5" y entrar. Ocultar un botón no es seguridad:
+            // el permiso se comprueba aquí, justo donde se realiza la acción.
+            if (usuarioActual == null || usuarioActual.Rol != "admin")
+            {
+                Console.WriteLine("Acceso denegado.");
+                return;
+            }
             Console.WriteLine("=== PANEL DE ADMINISTRACIÓN ===");
             Console.WriteLine("Lista de usuarios registrados:");
             foreach (Usuario u in baseDatos.ListarTodos())
