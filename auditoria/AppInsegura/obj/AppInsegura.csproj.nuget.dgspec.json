@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj": {}
+    "C:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj": {}
   },
   "projects": {
-    "c:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj": {
+    "C:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj",
+        "projectUniqueName": "C:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj",
         "projectName": "AppInsegura",
-        "projectPath": "c:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj",
+        "projectPath": "C:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\AppInsegura.csproj",
         "packagesPath": "C:\\Users\\ericadmella\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\obj\\",
+        "outputPath": "C:\\Users\\ericadmella\\Documents\\GitHub\\auditoria-corregida\\auditoria\\AppInsegura\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ericadmella\\AppData\\Roaming\\NuGet\\NuGet.Config"
